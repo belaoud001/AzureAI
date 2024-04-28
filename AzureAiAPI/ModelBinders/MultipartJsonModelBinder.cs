@@ -50,7 +50,7 @@ public class MultipartJsonModelBinder : IModelBinder
         {
             var model = await request.ReadFromJsonAsync<Request>();
 
-            if (model.Text != null)
+            if (!string.IsNullOrEmpty(model.Text))
             {
                 if (model.AzureAiOperation != null)
                     bindingContext.Result = ModelBindingResult.Success(model);
