@@ -1,11 +1,11 @@
 ﻿using AzureAiAPI.Entities;
+using AzureAiAPI.Exceptions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace AzureAiAPI.ModelBinders;
 
 public class MultipartJsonModelBinder : IModelBinder
 {
-    
     public async Task BindModelAsync(ModelBindingContext bindingContext)
     {
         if (bindingContext == null)
@@ -21,28 +21,46 @@ public class MultipartJsonModelBinder : IModelBinder
         }
 
         var httpContext = bindingContext.HttpContext;
-        var request     = httpContext.Request;
+        var request = httpContext.Request;
 
-        // Check if the request has multipart/form-data content
         if (request.HasFormContentType)
         {
             var form  = await request.ReadFormAsync();
-            var model = new Request
+            
+            if (form.Files.Count == 0)
             {
-                AudioSource = form.Files.Count > 0 ? form.Files[0] : null
-            };
-
-            bindingContext.Result = ModelBindingResult.Success(model);
-            return;
+                throw new MissingFieldException();
+            }
+            else if (form.Files.Count == 1)
+            {
+                var model = new Request
+                {
+                    AudioSource = form.Files[0]
+                };
+                
+                bindingContext.Result = ModelBindingResult.Success(model);
+            }
+            else
+            {
+                throw new MultipleAudioSourceException();
+            }
         }
 
-        // Check if the request has JSON content
         if (request.HasJsonContentType())
         {
             var model = await request.ReadFromJsonAsync<Request>();
-            
-            bindingContext.Result = ModelBindingResult.Success(model);
+
+            if (model.Text != null)
+            {
+                if (model.AzureAiOperation != null)
+                    bindingContext.Result = ModelBindingResult.Success(model);
+                else
+                    throw new MissingFieldException();
+            }
+            else
+            {
+                throw new MissingFieldException();
+            }
         }
     }
-    
 }
