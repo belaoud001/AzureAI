@@ -41,11 +41,19 @@ public class ExceptionHandlerMiddleware
                 break;
             case InvalidBase64EncodingException:
                 httpStatusCode = HttpStatusCode.BadRequest;
-                message = "Invalid base64 encoding ...";
+                message = "Invalid base64 encoding.";
+                break;
+            case MissingFieldException:
+                httpStatusCode = HttpStatusCode.BadRequest;
+                message = "Required field is missing : Json : 'Text' or 'AzureAiOperation' / Multipart : 'AudioSource' (File).";
+                break;
+            case MultipleAudioSourceException:
+                httpStatusCode = HttpStatusCode.BadRequest;
+                message = "Multiple files are not supported, we invite you to send one file.";
                 break;
         }
 
-        var result = JsonConvert.SerializeObject(new { error = message });
+        var result = JsonConvert.SerializeObject(new { error = exception.Message });
 
         httpContext.Response.StatusCode  = (int) httpStatusCode;
         httpContext.Response.ContentType = "application/json";
