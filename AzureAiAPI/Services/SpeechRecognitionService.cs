@@ -63,13 +63,18 @@ public class SpeechRecognitionService : ISpeechRecognitionService
             throw new InvalidBase64EncodingException();
         }
     }
+    
+    private AudioInputStream CreateAudioInputStream(Stream stream)
+    {
+        return new PullAudioInputStream(new BinaryAudioStreamReader(new BinaryReader(stream)));
+    }
 
-    private async Task<string> IdentifySpeechLanguageAsync(string encodedString)
+    private async Task<string> IdentifySpeechLanguageAsync(Stream stream)
     {
         string spokenLanguage = null;
         var speechConfig = ConfigureSpeechRecognition();
         var autoDetectSourceLanguageConfig = AutoDetectSourceLanguageConfig.FromOpenRange();
-        var audioInputStream = CreateAudioInputStream(encodedString);
+        var audioInputStream = CreateAudioInputStream(stream);
         var stopRecognition = new TaskCompletionSource<int>();
 
         using (var audioConfig = AudioConfig.FromStreamInput(audioInputStream))
@@ -125,12 +130,12 @@ public class SpeechRecognitionService : ISpeechRecognitionService
         }
     }
 
-    public async Task<SpeechInsights> RecogniseSpeechAsync(string encodedString)
+    public async Task<SpeechInsights> RecogniseSpeechAsync(Stream stream)
     {
         var translatedText = new StringBuilder();
-        var source = await IdentifySpeechLanguageAsync(encodedString);
+        var source = await IdentifySpeechLanguageAsync(stream);
         var speechTranslationConfig = ConfigureSpeechTranslation(source, "en-US");
-        var audioInputStream = CreateAudioInputStream(encodedString);
+        var audioInputStream = CreateAudioInputStream(stream);
         var stopTranslation = new TaskCompletionSource<int>();
         
         using (var audioConfig = AudioConfig.FromStreamInput(audioInputStream))

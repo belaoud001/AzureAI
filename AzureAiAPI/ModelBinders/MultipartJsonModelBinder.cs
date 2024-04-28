@@ -1,4 +1,5 @@
 ﻿using AzureAiAPI.Entities;
+using AzureAiAPI.Enums;
 using AzureAiAPI.Exceptions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -53,13 +54,34 @@ public class MultipartJsonModelBinder : IModelBinder
             if (!string.IsNullOrEmpty(model.Text))
             {
                 if (model.AzureAiOperation != null)
-                    bindingContext.Result = ModelBindingResult.Success(model);
+                {
+                    switch (model.AzureAiOperation)
+                    {
+                        case AzureAiOperation.Translation:
+                            if (!string.IsNullOrEmpty(model.SourceLanguage) &&
+                                !string.IsNullOrEmpty(model.TargetLanguage))
+                            {
+                                bindingContext.Result = ModelBindingResult.Success(model);
+                            }
+                            else
+                                throw new MissingFieldException("For translation both (source/target) language fields are required.");
+                            break;
+                        case AzureAiOperation.Synthesis:
+                            if (!string.IsNullOrEmpty(model.SourceLanguage))
+                            {
+                                bindingContext.Result = ModelBindingResult.Success(model);
+                            }
+                            else
+                                throw new MissingFieldException("For sythesis source language field is required.");
+                            break;
+                    }
+                }
                 else
-                    throw new MissingFieldException();
+                    throw new MissingFieldException("Azure Ai operation field is required : { Translation, Synthesis }.");
             }
             else
             {
-                throw new MissingFieldException();
+                throw new MissingFieldException("Text field is required.");
             }
         }
     }

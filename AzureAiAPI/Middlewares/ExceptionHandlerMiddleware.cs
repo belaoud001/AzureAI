@@ -45,11 +45,15 @@ public class ExceptionHandlerMiddleware
                 break;
             case MissingFieldException:
                 httpStatusCode = HttpStatusCode.BadRequest;
-                message = "Required field is missing : Json : 'Text' or 'AzureAiOperation' / Multipart : 'AudioSource' (File).";
+                message = exception.Message;
                 break;
             case MultipleAudioSourceException:
                 httpStatusCode = HttpStatusCode.BadRequest;
                 message = "Multiple files are not supported, we invite you to send one file.";
+                break;
+            case FileFormatNotSupported:
+                httpStatusCode = HttpStatusCode.BadRequest;
+                message = "Only .wav files are supported.";
                 break;
         }
 
