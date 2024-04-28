@@ -15,7 +15,10 @@ public static class ServiceExtensions
                     .AllowAnyMethod()
                     .AllowAnyHeader())
         );
-        
+    }
+
+    public static void ConfigureServices(this IServiceCollection services)
+    {
         services.AddScoped<ISpeechRecognitionService, SpeechRecognitionService>();
         services.AddScoped<ITextTranslationService, TextTranslationService>();
         services.AddScoped<ITtsService, TtsService>();
