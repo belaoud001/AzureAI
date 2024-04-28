@@ -1,5 +1,6 @@
 ﻿using AzureAiAPI.Configuration;
 using AzureAiAPI.Middlewares;
+using AzureAiAPI.ModelBinders;
 
 namespace AzureAiAPI;
 
@@ -17,6 +18,7 @@ public class Startup
     {
         services.ConfigureCors();
         services.AddControllers();
+        services.ConfigureServices();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
     }
