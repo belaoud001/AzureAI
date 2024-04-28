@@ -30,7 +30,7 @@ public class ExceptionHandlerMiddleware
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
+    private Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
     {
         var httpStatusCode = HttpStatusCode.InternalServerError;
         var message        = "Internal Server Error.";
@@ -57,7 +57,9 @@ public class ExceptionHandlerMiddleware
                 break;
         }
 
-        var result = JsonConvert.SerializeObject(new { error = exception.Message });
+        _logger.LogError(exception.StackTrace);
+        
+        var result = JsonConvert.SerializeObject(new { error = message });
 
         httpContext.Response.StatusCode  = (int) httpStatusCode;
         httpContext.Response.ContentType = "application/json";
