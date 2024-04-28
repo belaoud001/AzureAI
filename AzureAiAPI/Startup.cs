@@ -21,6 +21,10 @@ public class Startup
         services.ConfigureServices();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+        services.AddControllersWithViews(options =>
+        {
+            options.ModelBinderProviders.Insert(0, new MultipartJsonModelBinderProvider());
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
